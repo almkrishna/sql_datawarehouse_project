@@ -1,0 +1,209 @@
+/* ============================================================================
+   Project       : Medallion Architecture – Data Warehouse
+   Layer         : Bronze Layer
+   Object Type   : Stored Procedure
+   Object Name   : bronze.load_bronze
+   Description   :
+       This stored procedure loads raw source data into the BRONZE layer
+       of the Medallion Architecture. The bronze layer stores data in its
+       original, raw format without transformations.
+
+       Each table is:
+       - Truncated before load
+       - Loaded using BULK INSERT from CSV files
+       - Timed to capture load duration
+   ============================================================================ */
+
+CREATE OR ALTER PROCEDURE bronze.load_bronze
+AS
+BEGIN
+    --------------------------------------------------------------------------
+    -- Disable row count messages for cleaner execution output
+    --------------------------------------------------------------------------
+    SET NOCOUNT ON;
+
+    --------------------------------------------------------------------------
+    -- Declare variables for load duration tracking
+    --------------------------------------------------------------------------
+    DECLARE 
+        @start_time DATETIME, 
+        @end_time DATETIME,
+        @branch_start_time DATETIME,
+        @branch_end_time DATETIME;
+
+    --------------------------------------------------------------------------
+    -- Start overall bronze layer load timer
+    --------------------------------------------------------------------------
+    SET @branch_start_time = GETDATE();
+
+    PRINT '===============================================';
+    PRINT 'Loading bronze layer';
+    PRINT '===============================================';
+
+    /* ======================================================================
+       TABLE: bronze.CUST_AZ12
+       Source: CUST_AZ12.csv
+       ====================================================================== */
+    PRINT '------------------------------ ';
+    PRINT 'TABLE bronze.CUST_AZ12';
+
+    SET @start_time = GETDATE();
+
+    PRINT '>>Truncating bronze.CUST_AZ12';
+    TRUNCATE TABLE bronze.CUST_AZ12;
+
+    PRINT '>>Inserting bronze.CUST_AZ12';
+    BULK INSERT bronze.CUST_AZ12
+    FROM 'F:\SQLData\CUST_AZ12.csv'
+    WITH (
+        FIRSTROW = 2,
+        FIELDTERMINATOR = ',',
+        TABLOCK
+    );
+
+    SET @end_time = GETDATE();
+    PRINT 'Load Duration : ' 
+        + CAST(DATEDIFF(SECOND, @start_time, @end_time) AS NVARCHAR(50)) 
+        + ' seconds';
+
+    /* ======================================================================
+       TABLE: bronze.LOC_A101
+       Source: LOC_A101.csv
+       ====================================================================== */
+    PRINT '------------------------------ ';
+    PRINT 'TABLE bronze.LOC_A101';
+
+    SET @start_time = GETDATE();
+
+    PRINT '>>Truncating bronze.LOC_A101';
+    TRUNCATE TABLE bronze.LOC_A101;
+
+    PRINT '>>Inserting bronze.LOC_A101';
+    BULK INSERT bronze.LOC_A101
+    FROM 'F:\SQLData\LOC_A101.csv'
+    WITH (
+        FIRSTROW = 2,
+        FIELDTERMINATOR = ',',
+        TABLOCK
+    );
+
+    SET @end_time = GETDATE();
+    PRINT 'Load Duration : ' 
+        + CAST(DATEDIFF(SECOND, @start_time, @end_time) AS NVARCHAR(50)) 
+        + ' seconds';
+
+    /* ======================================================================
+       TABLE: bronze.PX_CAT_G1V
+       Source: PX_CAT_G1V2.csv
+       ====================================================================== */
+    PRINT '------------------------------ ';
+    PRINT 'TABLE bronze.PX_CAT_G1V';
+
+    SET @start_time = GETDATE();
+
+    PRINT '>>Truncating bronze.PX_CAT_G1V';
+    TRUNCATE TABLE bronze.PX_CAT_G1V;
+
+    BULK INSERT bronze.PX_CAT_G1V
+    FROM 'F:\SQLData\PX_CAT_G1V2.csv'
+    WITH (
+        FIRSTROW = 2,
+        FIELDTERMINATOR = ',',
+        TABLOCK
+    );
+
+    SET @end_time = GETDATE();
+    PRINT 'Load Duration : ' 
+        + CAST(DATEDIFF(SECOND, @start_time, @end_time) AS NVARCHAR(50)) 
+        + ' seconds';
+
+    /* ======================================================================
+       TABLE: bronze.cust_info
+       Source: cust_info.csv
+       ====================================================================== */
+    PRINT '------------------------------ ';
+    PRINT 'TABLE bronze.cust_info';
+
+    SET @start_time = GETDATE();
+
+    PRINT '>>Truncating bronze.cust_info';
+    TRUNCATE TABLE bronze.cust_info;
+
+    PRINT '>>Inserting bronze.cust_info';
+    BULK INSERT bronze.cust_info
+    FROM 'F:\SQLData\cust_info.csv'
+    WITH (
+        FIRSTROW = 2,
+        FIELDTERMINATOR = ',',
+        TABLOCK
+    );
+
+    SET @end_time = GETDATE();
+    PRINT 'Load Duration : ' 
+        + CAST(DATEDIFF(SECOND, @start_time, @end_time) AS NVARCHAR(50)) 
+        + ' seconds';
+
+    /* ======================================================================
+       TABLE: bronze.prd_info
+       Source: prd_info.csv
+       ====================================================================== */
+    PRINT '------------------------------ ';
+    PRINT 'TABLE bronze.prd_info';
+
+    SET @start_time = GETDATE();
+
+    PRINT '>>Truncating bronze.prd_info';
+    TRUNCATE TABLE bronze.prd_info;
+
+    PRINT '>>Inserting bronze.prd_info';
+    BULK INSERT bronze.prd_info
+    FROM 'F:\SQLData\prd_info.csv'
+    WITH (
+        FIRSTROW = 2,
+        FIELDTERMINATOR = ',',
+        TABLOCK
+    );
+
+    SET @end_time = GETDATE();
+    PRINT 'Load Duration : ' 
+        + CAST(DATEDIFF(SECOND, @start_time, @end_time) AS NVARCHAR(50)) 
+        + ' seconds';
+
+    /* ======================================================================
+       TABLE: bronze.sales_details
+       Source: sales_details.csv
+       ====================================================================== */
+    PRINT '------------------------------ ';
+    PRINT 'TABLE bronze.sales_details';
+
+    PRINT '>>Truncating bronze.sales_details';
+    TRUNCATE TABLE bronze.sales_details;
+
+    PRINT '>>Inserting bronze.sales_details';
+    BULK INSERT bronze.sales_details
+    FROM 'F:\SQLData\sales_details.csv'
+    WITH (
+        FIRSTROW = 2,
+        FIELDTERMINATOR = ',',
+        TABLOCK
+    );
+
+    SET @end_time = GETDATE();
+    PRINT 'Load Duration : ' 
+        + CAST(DATEDIFF(SECOND, @start_time, @end_time) AS NVARCHAR(50)) 
+        + ' seconds';
+
+    --------------------------------------------------------------------------
+    -- End overall bronze layer load timer
+    --------------------------------------------------------------------------
+    SET @branch_end_time = GETDATE();
+
+    PRINT 'Branch Load Duration : ' 
+        + CAST(DATEDIFF(SECOND, @branch_start_time, @branch_end_time) AS NVARCHAR(50)) 
+        + ' seconds';
+
+END;
+GO
+
+-- Execute Bronze Layer Load
+EXEC bronze.load_bronze;

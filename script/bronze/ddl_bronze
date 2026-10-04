@@ -1,0 +1,35 @@
+/* ============================================================
+   SQL Data Warehouse Project
+
+   This script is used to set up the basic structure of a
+   Data Warehouse using the Medallion Architecture.
+
+   It creates:
+   - A database named DataWarehouse
+   - Three schemas:
+       1. bronze  → raw source data
+       2. silver  → cleaned and transformed data
+       3. gold    → final data for reporting and analytics
+
+   Run this script once during the initial setup.
+   ============================================================ */
+
+USE master;
+GO 
+--Create DataWarehouse Database
+  CREATE DATABASE DataWarehouse;
+
+--Use DataWarehouse Database
+  USE DataWarehouse;
+
+--Create bronze schema(Raw data)
+  CREATE SCHEMA bronze;
+  GO
+
+--Create silver schema(Cleaned & Transformed data)
+  CREATE SCHEMA silver;
+  GO
+--Create gold schema(Business-Ready data)
+  CREATE SCHEMA gold;
+  GO
+

@@ -1,0 +1,110 @@
+/* ============================================================
+   Script Purpose:
+
+   This script creates tables in the Silver schema of the Data Warehouse.
+
+   - Existing Silver tables are dropped and recreated.
+   - Tables in this layer store cleaned and standardized data
+     derived from the Bronze layer.
+   - Minimal transformations are applied before loading data
+     into these structures.
+   - An metadata column is added to track record creation time.
+
+   This script is intended to be re-runnable.
+   ============================================================ */
+
+USE DataWarehouse;
+GO
+
+/* ------------------------------------------------------------
+   Customer basic information
+------------------------------------------------------------ */
+DROP TABLE IF EXISTS silver.CUST_AZ12;
+GO
+CREATE TABLE silver.CUST_AZ12(
+    CID NVARCHAR(50),
+    BDATE DATE,
+    GEN NVARCHAR(50),
+    dwh_create_date DATETIME2 DEFAULT GETDATE()
+);
+GO
+
+/* ------------------------------------------------------------
+   Customer master information
+------------------------------------------------------------ */
+DROP TABLE IF EXISTS silver.cust_info;
+GO
+CREATE TABLE silver.cust_info(
+    cst_id NVARCHAR(50),
+    cst_key NVARCHAR(50),
+    cst_firstname NVARCHAR(50),
+    cst_lastname NVARCHAR(50),
+    cst_marital_status NVARCHAR(50),
+    cst_gndr NVARCHAR(50),
+    cst_create_date DATETIME,
+    dwh_create_date DATETIME2 DEFAULT GETDATE()
+);
+GO
+
+/* ------------------------------------------------------------
+   Customer location details
+------------------------------------------------------------ */
+DROP TABLE IF EXISTS silver.LOC_A101;
+GO
+CREATE TABLE silver.LOC_A101(
+    CID NVARCHAR(50),
+    CNTRY NVARCHAR(50),
+    dwh_create_date DATETIME2 DEFAULT GETDATE()
+);
+GO
+
+/* ------------------------------------------------------------
+   Product master information
+------------------------------------------------------------ */
+DROP TABLE IF EXISTS silver.prd_info;
+GO
+CREATE TABLE silver.prd_info(
+    prd_id INT,
+    prd_key NVARCHAR(50),
+    prd_nm NVARCHAR(50),
+    prd_cost NVARCHAR(50),
+    prd_line NVARCHAR(50),
+    prd_start_dt NVARCHAR(50),
+    prd_end_dt DATE,
+    dwh_create_date DATETIME2 DEFAULT GETDATE()
+);
+GO
+
+/* ------------------------------------------------------------
+   Product category and maintenance details
+------------------------------------------------------------ */
+DROP TABLE IF EXISTS silver.PX_CAT_G1V;
+GO
+CREATE TABLE silver.PX_CAT_G1V(
+    ID NVARCHAR(50),
+    CAT NVARCHAR(50),
+    SUBCAT NVARCHAR(50),
+    MAINTENANCE NVARCHAR(50),
+    dwh_create_date DATETIME2 DEFAULT GETDATE()
+);
+GO
+
+/* ------------------------------------------------------------
+   Sales transaction details
+------------------------------------------------------------ */
+DROP TABLE IF EXISTS silver.sales_details;
+GO
+CREATE TABLE silver.sales_details(
+    sls_ord_num NVARCHAR(50),
+    sls_prd_key NVARCHAR(50),
+    sls_cust_id NVARCHAR(50),
+    sls_order_dt NVARCHAR(50),
+    sls_ship_dt NVARCHAR(50),
+    sls_due_dt NVARCHAR(50),
+    sls_sales DECIMAL,
+    sls_quantity INT,
+    sls_price DECIMAL,
+    dwh_create_date DATETIME2 DEFAULT GETDATE()
+);
+GO
+

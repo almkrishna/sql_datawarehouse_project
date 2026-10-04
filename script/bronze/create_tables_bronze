@@ -1,0 +1,91 @@
+/* ============================================================
+   Bronze Layer – Table Creation Script
+
+   This script creates all required tables for the Bronze layer
+   of the Data Warehouse. The Bronze layer stores raw data
+   exactly as received from source files, without any
+   transformations or business logic.
+   ============================================================ */
+
+USE DataWarehouse;
+GO
+
+/* ------------------------------------------------------------
+   Customer basic information (raw)
+------------------------------------------------------------ */
+DROP TABLE IF EXISTS bronze.CUST_AZ12;
+GO
+CREATE TABLE bronze.CUST_AZ12(
+    CID NVARCHAR(50),
+    BDATE DATE,
+    GEN NVARCHAR(50)
+);
+
+/* ------------------------------------------------------------
+   Customer master information (raw)
+------------------------------------------------------------ */
+DROP TABLE IF EXISTS bronze.cust_info;
+GO
+CREATE TABLE bronze.cust_info(
+    cst_id NVARCHAR(50),
+    cst_key NVARCHAR(50),
+    cst_firstname NVARCHAR(50),
+    cst_lastname NVARCHAR(50),
+    cst_marital_status NVARCHAR(50),
+    cst_gndr NVARCHAR(50),
+    cst_create_date DATETIME
+);
+
+/* ------------------------------------------------------------
+   Customer location details (raw)
+------------------------------------------------------------ */
+DROP TABLE IF EXISTS bronze.LOC_A101;
+GO
+CREATE TABLE bronze.LOC_A101(
+    CID NVARCHAR(50),
+    CNTRY NVARCHAR(50)
+);
+
+/* ------------------------------------------------------------
+   Product master information (raw)
+------------------------------------------------------------ */
+DROP TABLE IF EXISTS bronze.prd_info;
+GO
+CREATE TABLE bronze.prd_info(
+    prd_id INT,
+    prd_key NVARCHAR(50),
+    prd_nm NVARCHAR(50),
+    prd_cost NVARCHAR(50),
+    prd_line NVARCHAR(50),
+    prd_start_dt NVARCHAR(50),
+    prd_end_dt DATE
+);
+
+/* ------------------------------------------------------------
+   Product category and maintenance details (raw)
+------------------------------------------------------------ */
+DROP TABLE IF EXISTS bronze.PX_CAT_G1V;
+GO
+CREATE TABLE bronze.PX_CAT_G1V(
+    ID NVARCHAR(50),
+    CAT NVARCHAR(50),
+    SUBCAT NVARCHAR(50),
+    MAINTENANCE NVARCHAR(50)
+);
+
+/* ------------------------------------------------------------
+   Sales transaction details (raw)
+------------------------------------------------------------ */
+DROP TABLE IF EXISTS bronze.sales_details;
+GO
+CREATE TABLE bronze.sales_details(
+    sls_ord_num NVARCHAR(50),
+    sls_prd_key NVARCHAR(50),
+    sls_cust_id NVARCHAR(50),
+    sls_order_dt NVARCHAR(50),
+    sls_ship_dt NVARCHAR(50),
+    sls_due_dt NVARCHAR(50),
+    sls_sales DECIMAL,
+    sls_quantity INT,
+    sls_price DECIMAL
+);

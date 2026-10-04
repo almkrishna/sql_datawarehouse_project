@@ -1,0 +1,136 @@
+/*
+============================================================
+Bronze Layer – Data Quality Checks
+============================================================
+
+Purpose:
+Before loading data into the Silver layer, I explored the
+Bronze tables to understand data quality issues such as
+invalid values, duplicates, and inconsistent formats.
+
+These checks helped me decide what cleaning logic was
+required in the Silver load procedure.
+
+============================================================
+*/
+
+
+/* ==========================================================
+   Table: bronze.CUST_AZ12
+========================================================== */
+
+-- Customer IDs starting with unwanted prefix
+-- Prefix removed during Silver load
+SELECT CID
+FROM bronze.CUST_AZ12
+WHERE CID LIKE 'NAS%';
+
+
+-- Birth dates greater than current date
+-- Such values were treated as invalid
+SELECT CID, BDATE
+FROM bronze.CUST_AZ12
+WHERE BDATE > GETDATE();
+
+
+-- Exploring different gender values
+-- Standardized to Male / Female / n/a in Silver
+SELECT DISTINCT GEN
+FROM bronze.CUST_AZ12;
+
+
+/* ==========================================================
+   Table: bronze.cust_info
+========================================================== */
+
+-- Duplicate customer records
+-- Latest record retained using ROW_NUMBER()
+SELECT cst_id, COUNT(*) AS cnt
+FROM bronze.cust_info
+GROUP BY cst_id
+HAVING COUNT(*) > 1;
+
+
+-- Records with missing customer ID
+-- These records were ignored during Silver load
+SELECT *
+FROM bronze.cust_info
+WHERE cst_id IS NULL;
+
+
+-- Checking marital status values
+-- M and S mapped, others marked as n/a
+SELECT DISTINCT cst_marital_status
+FROM bronze.cust_info;
+
+
+-- Checking gender values
+-- Cleaned and standardized in Silver
+SELECT DISTINCT cst_gndr
+FROM bronze.cust_info;
+
+
+/* ==========================================================
+   Table: bronze.LOC_A101
+========================================================== */
+
+-- Customer IDs containing hyphens
+-- Hyphens removed for consistency
+SELECT CID
+FROM bronze.LOC_A101
+WHERE CID LIKE '%-%';
+
+
+-- Country column with NULL or blank values
+-- Replaced with 'n/a' in Silver
+SELECT CID, CNTRY
+FROM bronze.LOC_A101
+WHERE CNTRY IS NULL
+   OR TRIM(CNTRY) = '';
+
+
+/* ==========================================================
+   Table: bronze.prd_info
+========================================================== */
+
+-- Product line stored as codes
+-- Converted to descriptive values in Silver
+SELECT DISTINCT prd_line
+FROM bronze.prd_info;
+
+
+-- Products with NULL cost
+-- Replaced with 0 to avoid calculation issues
+SELECT prd_id, prd_cost
+FROM bronze.prd_info
+WHERE prd_cost IS NULL;
+
+
+/* ==========================================================
+   Table: bronze.sales_details
+========================================================== */
+
+-- Order dates not following YYYYMMDD format
+-- Invalid dates handled in Silver
+SELECT sls_ord_num, sls_order_dt
+FROM bronze.sales_details
+WHERE sls_order_dt <= 0
+   OR LEN(sls_order_dt) <> 8;
+
+
+-- Sales value not matching quantity * price
+-- Sales recalculated in Silver
+SELECT sls_ord_num, sls_sales, sls_quantity, sls_price
+FROM bronze.sales_details
+WHERE sls_sales IS NULL
+   OR sls_sales <= 0
+   OR sls_sales <> sls_quantity * ABS(sls_price);
+
+
+-- Null or negative price values
+-- Fixed during Silver transformation
+SELECT sls_ord_num, sls_price
+FROM bronze.sales_details
+WHERE sls_price IS NULL
+   OR sls_price <= 0;
+
